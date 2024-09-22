@@ -82,6 +82,14 @@ class Shape:
     def move(self, dx: int, dy: int) -> Shape:
         return Shape(self._grid, self.x + dx, self.y + dy)
 
+    def move_down(self) -> Shape:
+        return self.move(0, 1)
+    
+    def move_left(self) -> Shape:
+        return self.move(-1, 0)
+    
+    def move_right(self) -> Shape:
+        return self.move(1, 0)
 
 _creators = {
     "j": Shape.create_j,

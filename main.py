@@ -30,8 +30,15 @@ screen = pygame.display.set_mode((640, 480))
 clock = pygame.time.Clock()
 running = True
 board = Board()
-
-shape = Shape.create_random_shape()
+moves = [
+    Shape.rotate_clockwise,
+    Shape.rotate_counterclockwise,
+    Shape.move_left,
+    Shape.move_right,
+    Shape.move_down,
+    None
+]
+shape = Shape.create_random_shape().move(4, 0)
 
 while running:
     # poll for events
@@ -41,12 +48,11 @@ while running:
             running = False
 
     new_shape = None
-    if random.randint(0, 100) < 25:
-        new_shape = shape.rotate_clockwise()
-    elif random.randint(0, 100) < 50:
-        new_shape = shape.rotate_counterclockwise()
-    if new_shape and board.can_fall(new_shape):
-        shape = new_shape
+    random_move = random.choice(moves)
+    if random_move:
+        new_shape = random_move(shape)
+        if not board.is_colliding(new_shape):
+            shape = new_shape
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("gray33")
@@ -64,7 +70,7 @@ while running:
         shape = moved_shape
     else:
         board.fuse(shape)
-        shape = Shape.create_random_shape()
+        shape = Shape.create_random_shape().move(4, 0)
         if board.is_topped_out(shape):
             # Game over
             running = False
