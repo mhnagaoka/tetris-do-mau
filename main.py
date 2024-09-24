@@ -21,8 +21,10 @@ cell_colors = {
 
 def render(board: Board, shape: Shape):
     for y, row in enumerate(board.grid(shape)):
+        row_is_full = all(cell != " " for cell in row)
         for x, cell in enumerate(row):
-            pygame.draw.rect(screen, cell_colors[cell], (x * 20 + 1, y * 20 + 1, 18, 18))
+            cell_color = cell_colors[cell] if not row_is_full else "white"
+            pygame.draw.rect(screen, cell_color, (x * 20 + 1, y * 20 + 1, 18, 18))
 
 # pygame setup
 pygame.init()
@@ -66,7 +68,7 @@ while running:
             moves.append(Shape.move_right)
             last_right = current_time
     if curr_keys[pygame.K_DOWN] or curr_keys[pygame.K_s]:
-        if current_time - last_right > 100:
+        if current_time - last_right > 200:
             moves.append(Shape.move_down)
             last_down = current_time
     # if pygame.K_LEFT in new_keys or pygame.K_a in new_keys:
