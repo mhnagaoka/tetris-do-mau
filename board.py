@@ -62,3 +62,12 @@ class Board:
 
     def is_topped_out(self, new_shape: Shape):
         return self.is_colliding(new_shape)
+
+    def clear_lines(self):
+        new_grid = []
+        for row in self._grid:
+            if " " not in row:
+                new_grid.insert(0, self._empty_row())
+            else:
+                new_grid.append(row)
+        self._grid = new_grid

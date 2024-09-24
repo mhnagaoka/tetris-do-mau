@@ -20,8 +20,9 @@ cell_colors = {
 }
 
 def render(board: Board, shape: Shape):
+    bare_grid = board.grid()
     for y, row in enumerate(board.grid(shape)):
-        row_is_full = all(cell != " " for cell in row)
+        row_is_full = " " not in bare_grid[y]
         for x, cell in enumerate(row):
             cell_color = cell_colors[cell] if not row_is_full else "white"
             pygame.draw.rect(screen, cell_color, (x * 20 + 1, y * 20 + 1, 18, 18))
@@ -103,6 +104,8 @@ while running:
 
     # RENDER YOUR GAME HERE
     render(board, shape)
+
+    board.clear_lines()
 
     # flip() the display to put your work on screen
     pygame.display.flip()
