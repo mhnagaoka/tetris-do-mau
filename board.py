@@ -65,9 +65,12 @@ class Board:
 
     def clear_lines(self):
         new_grid = []
+        lines_cleared = 0
         for row in self._grid:
             if " " not in row:
                 new_grid.insert(0, self._empty_row())
+                lines_cleared += 1
             else:
                 new_grid.append(row)
         self._grid = new_grid
+        return lines_cleared

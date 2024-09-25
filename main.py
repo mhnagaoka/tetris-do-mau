@@ -2,6 +2,7 @@
 import logging
 import random
 import pygame
+import pygame.freetype
 from board import Board
 from shape import Shape
 
@@ -19,18 +20,22 @@ cell_colors = {
     " ": "black"
 }
 
-def render(board: Board, shape: Shape):
+def render_board(board: Board, shape: Shape, score: str = "0"):
     bare_grid = board.grid()
     for y, row in enumerate(board.grid(shape)):
         row_is_full = " " not in bare_grid[y]
         for x, cell in enumerate(row):
             cell_color = cell_colors[cell] if not row_is_full else "white"
-            pygame.draw.rect(screen, cell_color, (x * 20 + 1, y * 20 + 1, 18, 18))
+            pygame.draw.rect(screen, cell_color, (x * 20 + 1, y * 20 + 21, 18, 18))
+
+def render_text(text: str, x: int, y: int):
+    game_font.render_to(screen, (x, y), text, "white")
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((640, 480))
+screen = pygame.display.set_mode((10 * 20 + 2, 480))
 clock = pygame.time.Clock()
+game_font = pygame.freetype.Font(None, 18)
 running = True
 board = Board()
 shape = Shape.create_random_shape().move(4, 0)
@@ -42,6 +47,7 @@ last_right = 0
 last_left = 0
 last_down = 0
 last_fall = pygame.time.get_ticks()
+score = 0
 
 while running:
     # poll for events
@@ -72,10 +78,6 @@ while running:
         if current_time - last_right > 200:
             moves.append(Shape.move_down)
             last_down = current_time
-    # if pygame.K_LEFT in new_keys or pygame.K_a in new_keys:
-    #     moves.append(Shape.move_left)
-    # if pygame.K_RIGHT in new_keys or pygame.K_d in new_keys:
-    #     moves.append(Shape.move_right)
     if pygame.K_e in new_keys:
         moves.append(Shape.rotate_clockwise)
     if pygame.K_q in new_keys:
@@ -103,9 +105,11 @@ while running:
     screen.fill("gray33")
 
     # RENDER YOUR GAME HERE
-    render(board, shape)
+    render_board(board, shape)
+    render_text(f"Score: {score}", 1, 1)
 
-    board.clear_lines()
+    lines_cleared = board.clear_lines()
+    score += lines_cleared ** 2
 
     # flip() the display to put your work on screen
     pygame.display.flip()
