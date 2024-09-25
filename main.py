@@ -20,13 +20,13 @@ cell_colors = {
     " ": "black"
 }
 
-def render_board(board: Board, shape: Shape, score: str = "0"):
+def render_board(board: Board, shape: Shape, offset_x: int = 1, offset_y: int = 21):
     bare_grid = board.grid()
     for y, row in enumerate(board.grid(shape)):
         row_is_full = " " not in bare_grid[y]
         for x, cell in enumerate(row):
             cell_color = cell_colors[cell] if not row_is_full else "white"
-            pygame.draw.rect(screen, cell_color, (x * 20 + 1, y * 20 + 21, 18, 18))
+            pygame.draw.rect(screen, cell_color, (x * 20 + offset_x, y * 20 + offset_y, 18, 18))
 
 def render_text(text: str, x: int, y: int):
     game_font.render_to(screen, (x, y), text, "white")
@@ -38,7 +38,7 @@ clock = pygame.time.Clock()
 game_font = pygame.freetype.Font(None, 18)
 running = True
 board = Board()
-shape = Shape.create_random_shape().move(4, 0)
+shape = None
 
 keys_monitored = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_a, pygame.K_d, pygame.K_e, pygame.K_q]
 prev_keys = pygame.key.get_pressed()
@@ -50,6 +50,14 @@ last_fall = pygame.time.get_ticks()
 score = 0
 
 while running:
+    
+    if shape is None:
+        shape = Shape.create_random_shape().move(4, 0)
+        if board.is_topped_out(shape):
+            # Game over
+            running = False
+            continue
+
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
@@ -95,10 +103,7 @@ while running:
             shape = shape.move_down()
         else:
             board.fuse(shape)
-            shape = Shape.create_random_shape().move(4, 0)
-            if board.is_topped_out(shape):
-                # Game over
-                running = False
+            shape = None
         last_fall = current_time
 
     # fill the screen with a color to wipe away anything from last frame
