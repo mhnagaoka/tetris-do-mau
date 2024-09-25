@@ -20,25 +20,27 @@ cell_colors = {
     " ": "black"
 }
 
-def render_board(board: Board, shape: Shape, offset_x: int = 1, offset_y: int = 21):
+def render_board(board: Board, shape: Shape, offset_x: int = 2, offset_y: int = 28, cell_size: int = 20, cell_border: int = 2):
     bare_grid = board.grid()
     for y, row in enumerate(board.grid(shape)):
         row_is_full = " " not in bare_grid[y]
         for x, cell in enumerate(row):
             cell_color = cell_colors[cell] if not row_is_full else "white"
-            pygame.draw.rect(screen, cell_color, (x * 20 + offset_x, y * 20 + offset_y, 18, 18))
+            pygame.draw.rect(screen, cell_color, (x * cell_size + offset_x, y * cell_size + offset_y, cell_size - cell_border, cell_size - cell_border))
 
 def render_text(text: str, x: int, y: int):
     game_font.render_to(screen, (x, y), text, "white")
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((10 * 20 + 2, 480))
+screen = pygame.display.set_mode((10 * 20 + 2, 440))
 clock = pygame.time.Clock()
 game_font = pygame.freetype.Font(None, 18)
 running = True
 board = Board()
+mini_board = Board(4, 2)
 shape = None
+next_shapes = [Shape.create_random_shape() for _ in range(1)]
 
 keys_monitored = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_a, pygame.K_d, pygame.K_e, pygame.K_q]
 prev_keys = pygame.key.get_pressed()
@@ -52,7 +54,8 @@ score = 0
 while running:
     
     if shape is None:
-        shape = Shape.create_random_shape().move(4, 0)
+        shape = next_shapes.pop(0).move(4, 0)
+        next_shapes.append(Shape.create_random_shape())
         if board.is_topped_out(shape):
             # Game over
             running = False
@@ -111,7 +114,8 @@ while running:
 
     # RENDER YOUR GAME HERE
     render_board(board, shape)
-    render_text(f"Score: {score}", 1, 1)
+    render_board(mini_board, next_shapes[0], 160, 4, 10, 1)
+    render_text(f"Score: {score}", 2, 8)
 
     lines_cleared = board.clear_lines()
     score += lines_cleared ** 2
