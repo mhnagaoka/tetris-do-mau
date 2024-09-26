@@ -20,6 +20,8 @@ cell_colors = {
     " ": "black"
 }
 
+fall_delay = [48, 43, 38, 33, 28, 23, 18, 13, 8, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1]
+
 def render_board(board: Board, shape: Shape, offset_x: int = 2, offset_y: int = 28, cell_size: int = 20, cell_border: int = 2):
     bare_grid = board.grid()
     for y, row in enumerate(board.grid(shape)):
@@ -48,8 +50,10 @@ prev_keys = pygame.key.get_pressed()
 last_right = 0
 last_left = 0
 last_down = 0
-last_fall = pygame.time.get_ticks()
+last_fall = 0
 score = 0
+current_frame = 0
+total_lines_cleared = 0
 
 while running:
     
@@ -75,20 +79,19 @@ while running:
 
     # Add moves to the list of moves to be executed according to the keys pressed
     moves = []
-    current_time = pygame.time.get_ticks()
     
     if curr_keys[pygame.K_LEFT] or curr_keys[pygame.K_a]:
-        if current_time - last_left > 100:
+        if current_frame - last_left >= 6:
             moves.append(Shape.move_left)
-            last_left = current_time
+            last_left = current_frame
     if curr_keys[pygame.K_RIGHT] or curr_keys[pygame.K_d]:
-        if current_time - last_right > 100:
+        if current_frame - last_right >= 6:
             moves.append(Shape.move_right)
-            last_right = current_time
+            last_right = current_frame
     if curr_keys[pygame.K_DOWN] or curr_keys[pygame.K_s]:
-        if current_time - last_right > 200:
+        if current_frame - last_right >= 12:
             moves.append(Shape.move_down)
-            last_down = current_time
+            last_down = current_frame
     if pygame.K_e in new_keys:
         moves.append(Shape.rotate_clockwise)
     if pygame.K_q in new_keys:
@@ -101,13 +104,13 @@ while running:
     if not board.is_colliding(new_shape):
         shape = new_shape        
 
-    if current_time - last_fall > 1000:
+    if current_frame - last_fall >= fall_delay[min(total_lines_cleared // 10, len(fall_delay) - 1)]:
         if board.can_move(shape, 0, 1):
             shape = shape.move_down()
         else:
             board.fuse(shape)
             shape = None
-        last_fall = current_time
+        last_fall = current_frame
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill("gray33")
@@ -115,15 +118,17 @@ while running:
     # RENDER YOUR GAME HERE
     render_board(board, shape)
     render_board(mini_board, next_shapes[0], 160, 4, 10, 1)
-    render_text(f"Score: {score}", 2, 8)
+    render_text(f"Score: {score} | Level: {total_lines_cleared // 10}", 2, 8)
 
     lines_cleared = board.clear_lines()
+    total_lines_cleared += lines_cleared
     score += lines_cleared ** 2
 
     # flip() the display to put your work on screen
     pygame.display.flip()
 
     clock.tick(60)  # limits FPS to 60
+    current_frame += 1
 
     # if board.is_colliding(shape):
     #     board.fuse(shape)
