@@ -38,7 +38,7 @@ pygame.init()
 screen = pygame.display.set_mode((10 * 20 + 2, 440))
 pygame.display.set_caption("Tetris do Mau")
 clock = pygame.time.Clock()
-game_font = pygame.freetype.Font(None, 18)
+game_font = pygame.freetype.Font(None, 14)
 running = True
 board = Board()
 mini_board = Board(4, 2)
