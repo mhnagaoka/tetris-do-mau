@@ -49,7 +49,6 @@ prev_keys = pygame.key.get_pressed()
 
 last_right = 0
 last_left = 0
-last_down = 0
 last_fall = 0
 score = 0
 current_frame = 0
@@ -79,7 +78,7 @@ while running:
 
     # Add moves to the list of moves to be executed according to the keys pressed
     moves = []
-    
+    curr_fall_delay = fall_delay[min(total_lines_cleared // 10, len(fall_delay) - 1)]
     if curr_keys[pygame.K_LEFT] or curr_keys[pygame.K_a]:
         if current_frame - last_left >= 6:
             moves.append(Shape.move_left)
@@ -89,9 +88,7 @@ while running:
             moves.append(Shape.move_right)
             last_right = current_frame
     if curr_keys[pygame.K_DOWN] or curr_keys[pygame.K_s]:
-        if current_frame - last_right >= 12:
-            moves.append(Shape.move_down)
-            last_down = current_frame
+        curr_fall_delay = min(2, curr_fall_delay)
     if pygame.K_e in new_keys:
         moves.append(Shape.rotate_clockwise)
     if pygame.K_q in new_keys:
@@ -104,7 +101,7 @@ while running:
     if not board.is_colliding(new_shape):
         shape = new_shape        
 
-    if current_frame - last_fall >= fall_delay[min(total_lines_cleared // 10, len(fall_delay) - 1)]:
+    if current_frame - last_fall >= curr_fall_delay:
         if board.can_move(shape, 0, 1):
             shape = shape.move_down()
         else:
