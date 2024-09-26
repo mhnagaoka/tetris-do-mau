@@ -36,6 +36,7 @@ def render_text(text: str, x: int, y: int):
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((10 * 20 + 2, 440))
+pygame.display.set_caption("Tetris do Mau")
 clock = pygame.time.Clock()
 game_font = pygame.freetype.Font(None, 18)
 running = True
